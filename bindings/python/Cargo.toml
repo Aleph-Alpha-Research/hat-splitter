@@ -1,0 +1,17 @@
+[package]
+name = "py-hat-splitter"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+description.workspace = true
+repository.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "hat_splitter"
+crate-type = ["cdylib"]
+
+[dependencies]
+hat-splitter = { path = "../.." }
+pyo3 = "0.24.0"
+

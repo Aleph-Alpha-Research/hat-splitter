@@ -1,6 +1,25 @@
-[package]
-name = "hat-splitter"
+[workspace]
+members = ["bindings/*"]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
+authors = ["Michael Barlow <michael.barlow@aleph-alpha-ip.ai>"]
+description = "HAT splitter"
+repository = "https://github.com/Aleph-Alpha/hat-splitter"
+
+[package]
+name = "hat-splitter"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+description.workspace = true
+repository.workspace = true
+exclude = [
+    ".github/**",
+    "/bindings/**",
+]
+rust-version = "1.81.0"
+
 
 [dependencies]
