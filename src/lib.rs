@@ -1,3 +1,3 @@
 mod split;
 
-pub use split::{Splitter, WhitespaceSplitter};
+pub use split::{Splitter, HATSplitter};
