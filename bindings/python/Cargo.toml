@@ -1,5 +1,6 @@
 [package]
 name = "py-hat-splitter"
+readme = "DOCS.md"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true

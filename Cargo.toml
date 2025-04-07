@@ -8,6 +8,7 @@ authors = ["Michael Barlow <michael.barlow@aleph-alpha-ip.ai>"]
 description = "HAT splitter"
 repository = "https://github.com/Aleph-Alpha/hat-splitter"
 license-file = "LICENSE"
+readme = "DOCS.md"
 
 [package]
 name = "hat-splitter"
