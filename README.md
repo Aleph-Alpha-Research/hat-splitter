@@ -20,3 +20,11 @@ the splitter we're currently using.
 
 Once these basics are in place, we can start thinking about packaging and
 publishing.
+
+## Development
+
+### Release process
+
+1. Update the version in `Cargo.toml`. Commit and push to `main`.
+2. Tag the commit with the new version, e.g., `git tag v0.1.0`.
+3. Push the tag to the remote. CI will take care of the rest.
