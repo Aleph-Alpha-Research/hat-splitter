@@ -20,7 +20,8 @@ the splitter we're currently using.
 3. Add Scaling as a Python dev dep and test the Python bindings against the
    existing splitting rule. Tests will fail. ✅
 4. Implement the HAT splitting rule in Rust and make tests green. ✅
-5. Create benchmarks and optimise.
+5. Package and publish to crates.io and PyPI. ✅
+6. Create benchmarks and optimise.
 
 Once these basics are in place, we can start thinking about packaging and
 publishing.
