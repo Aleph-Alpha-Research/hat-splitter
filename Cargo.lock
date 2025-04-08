@@ -45,7 +45,7 @@ dependencies = [
 
 [[package]]
 name = "hat-splitter"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "icu_segmenter",
  "regex",
@@ -193,7 +193,7 @@ dependencies = [
 
 [[package]]
 name = "py-hat-splitter"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "hat-splitter",
  "pyo3",
