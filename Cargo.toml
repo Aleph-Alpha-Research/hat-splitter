@@ -2,7 +2,7 @@
 members = ["bindings/*"]
 
 [workspace.package]
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 authors = ["Michael Barlow <michael.barlow@aleph-alpha-ip.ai>"]
 description = "HAT splitter"
@@ -27,3 +27,6 @@ rust-version = "1.81.0"
 
 
 [dependencies]
+icu_segmenter = "1.5.0"
+once_cell = "1.21.3"
+regex = "1.11.1"
