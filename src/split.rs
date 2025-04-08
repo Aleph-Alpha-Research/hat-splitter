@@ -1,4 +1,5 @@
 use icu_segmenter::WordSegmenter;
+use once_cell::sync::Lazy;
 use regex::Regex;
 
 #[derive(Clone)]
@@ -17,12 +18,18 @@ pub trait Splitter {
 
 pub struct HATSplitter;
 
+impl Default for HATSplitter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HATSplitter {
     pub fn new() -> Self {
         HATSplitter
     }
 
-    fn _unicode_word_split<'a>(input: &'a str) -> Vec<&'a str> {
+    fn _unicode_word_split(input: &str) -> Vec<&str> {
         // TODO make this a member of the struct;
         // this is not currently trivial as it is not `Sync`
         // and Py03 requires `Send` and `Sync` due to the python GIL
@@ -36,8 +43,8 @@ impl HATSplitter {
     }
 
     fn _split_camel_case(s: &str) -> Vec<&str> {
-        let re = Regex::new(r"(\p{Ll})(\p{Lu})").unwrap();
-        let mut indices = re.find_iter(s).map(|m| m.start() + 1).collect::<Vec<_>>();
+        static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\p{Ll})(\p{Lu})").unwrap());
+        let mut indices = RE.find_iter(s).map(|m| m.start() + 1).collect::<Vec<_>>();
 
         indices.insert(0, 0);
         indices.push(s.len());
@@ -63,34 +70,32 @@ impl HATSplitter {
     }
 
     fn _lexer(s: &str) -> Vec<Token> {
-        let word_split = HATSplitter::_unicode_word_split(s);
+        let words = HATSplitter::_unicode_word_split(s);
 
-        let split_camel_case = word_split
+        let words = words
             .iter()
             .flat_map(|s| HATSplitter::_split_camel_case(s))
             .collect::<Vec<&str>>();
 
-        let concat_spaces = HATSplitter::_concatenate_spaces(split_camel_case.clone());
+        let words = HATSplitter::_concatenate_spaces(words.clone());
 
-        let whitespace_re = Regex::new(r"^\s+$").unwrap();
-        let punctuation_re = Regex::new(r"^\p{P}$").unwrap();
+        static WHITESPACE_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s+$").unwrap());
+        static PUNCTUATION_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\p{P}$").unwrap());
 
-        let tokens = concat_spaces
+        words
             .into_iter()
             .map(|s| {
                 if s == " " {
                     Token::Space(s)
-                } else if whitespace_re.is_match(s.as_str()) {
+                } else if WHITESPACE_RE.is_match(s.as_str()) {
                     Token::Whitespace(s)
-                } else if punctuation_re.is_match(s.as_str()) {
+                } else if PUNCTUATION_RE.is_match(s.as_str()) {
                     Token::Punctuation(s)
                 } else {
                     Token::Word(s)
                 }
             })
-            .collect();
-
-        tokens
+            .collect()
     }
 
     fn _parser(tokens: Vec<Token>) -> Vec<String> {

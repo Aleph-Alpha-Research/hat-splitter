@@ -28,4 +28,5 @@ rust-version = "1.81.0"
 
 [dependencies]
 icu_segmenter = "1.5.0"
+once_cell = "1.21.3"
 regex = "1.11.1"

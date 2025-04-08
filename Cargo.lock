@@ -48,6 +48,7 @@ name = "hat-splitter"
 version = "0.1.4"
 dependencies = [
  "icu_segmenter",
+ "once_cell",
  "regex",
 ]
 
