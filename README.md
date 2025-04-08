@@ -15,11 +15,12 @@ result, the splitting rule implemented here must exactly match the behaviour of
 the splitter we're currently using.
 
 1. Create a simple placeholder text splitting implementation (e.g., just split
-   on whitespace).
-2. Set up Python bindings with PyO3.
+   on whitespace). ✅
+2. Set up Python bindings with PyO3. ✅
 3. Add Scaling as a Python dev dep and test the Python bindings against the
-   existing splitting rule. Tests will fail.
-4. Implement the HAT splitting rule in Rust and make tests green.
+   existing splitting rule. Tests will fail. ✅
+4. Implement the HAT splitting rule in Rust and make tests green. ✅
+5. Create benchmarks and optimise.
 
 Once these basics are in place, we can start thinking about packaging and
 publishing.
