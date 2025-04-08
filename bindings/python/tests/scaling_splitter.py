@@ -1,17 +1,9 @@
 from abc import ABC, abstractmethod
-from enum import Enum
 from uniseg import wordbreak
 import regex as re
 
-
-class SplitterType(Enum):
-    FIXED = "fixed"
-    WHITESPACE = "whitespace"
-    UNICODE_PUNCTUATION = "unicode_punctuation"
-    UNICODE_PUNCTUATION_CAMEL = "unicode_punctuation_camel"
-    UNICODE_PUNCTUATION_CAMEL_SYMBOL = "unicode_punctuation_camel_symbol"
-    UNICODE_SEPARATE_PUNCTUATION = "unicode_separate_punctuation"
-    UNICODE_MERGED_PUNCTUATION = "unicode_merged_punctuation"
+# This implementation was copied from Scaling verbatim
+# https://github.com/Aleph-Alpha/scaling-internal/blob/44a5c7286d01e288734f809bf43e821a8b6aa690/src/scaling/transformer/tokenizer/hierarchical.py#L252
 
 
 class BaseTextSplitter(ABC):
