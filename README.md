@@ -3,8 +3,8 @@
 This is the home of the HAT splitting rule. We expose it as a Rust crate with
 Python bindings so that the same splitting rule can be used in both languages.
 
-Rust crate: https://crates.io/crates/hat-splitter
-Python package: https://pypi.org/project/hat-splitter
+- Rust crate: https://crates.io/crates/hat-splitter
+- Python package: https://pypi.org/project/hat-splitter
 
 This project is WIP. More information and documentation to follow.
 
