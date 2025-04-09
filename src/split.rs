@@ -4,10 +4,6 @@ use icu_segmenter::WordSegmenter;
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-// Note: we could also try `new_auto` which uses a LSTM (we should figure out which is better)
-static WORD_SEGMENTER: LazyLock<WordSegmenter> = LazyLock::new(WordSegmenter::new_dictionary);
-
-#[derive(Clone)]
 enum Token {
     Word(String),
     Punctuation(String),
@@ -15,9 +11,19 @@ enum Token {
     Space(String),
 }
 
+impl Token {
+    fn as_string(self) -> String {
+        match self {
+            Token::Word(s) | Token::Punctuation(s) | Token::Whitespace(s) | Token::Space(s) => s,
+        }
+    }
+}
+
 pub trait Splitter {
     // At some point it would be great to do this without allocations...
     //fn split<'a>(&self, input: &'a str) -> Vec<&'a str>;
+
+    /// Splits a string into logical tokens.
     fn split(&self, input: &str) -> Vec<String>;
 }
 
@@ -31,26 +37,45 @@ impl Default for HATSplitter {
 
 impl HATSplitter {
     pub fn new() -> Self {
-        HATSplitter
+        Self
     }
 
-    fn _unicode_word_split(input: &str) -> Vec<&str> {
+    fn unicode_word_split(input: &str) -> Vec<&str> {
+        // Note: we could also try `new_auto` which uses a LSTM (we should figure out which is better)
+        static WORD_SEGMENTER: LazyLock<WordSegmenter> =
+            LazyLock::new(WordSegmenter::new_dictionary);
         let breakpoints: Vec<usize> = WORD_SEGMENTER.segment_str(input).collect();
-
         breakpoints.windows(2).map(|w| &input[w[0]..w[1]]).collect()
     }
 
-    fn _split_camel_case(s: &str) -> Vec<&str> {
-        static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\p{Ll})(\p{Lu})").unwrap());
-        let mut indices = RE.find_iter(s).map(|m| m.start() + 1).collect::<Vec<_>>();
+    fn split_at_matches<'a>(s: &'a str, re: &Regex) -> Vec<&'a str> {
+        let mut result = Vec::new();
+        let mut match_start = 0;
 
-        indices.insert(0, 0);
-        indices.push(s.len());
+        for regex_match in re.find_iter(s) {
+            let match_end = regex_match.start() + 1;
+            result.push(&s[match_start..match_end]);
+            match_start = match_end;
+        }
 
-        indices.windows(2).map(|w| &s[w[0]..w[1]]).collect()
+        if match_start < s.len() {
+            result.push(&s[match_start..s.len()]);
+        }
+
+        result
     }
 
-    fn _concatenate_spaces(strings: Vec<&str>) -> Vec<String> {
+    fn split_camel_case(s: &str) -> Vec<&str> {
+        static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(\p{Ll})(\p{Lu})").unwrap());
+        Self::split_at_matches(s, &RE)
+    }
+
+    fn split_snake_case(s: &str) -> Vec<&str> {
+        static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"_").unwrap());
+        Self::split_at_matches(s, &RE)
+    }
+
+    fn combine_spaces(strings: Vec<&str>) -> Vec<String> {
         strings.into_iter().fold(Vec::new(), |mut acc, s| {
             if s == " " {
                 // If we have a space and the last element is also spaces, append to it
@@ -67,18 +92,20 @@ impl HATSplitter {
         })
     }
 
-    fn _lexer(s: &str) -> Vec<Token> {
-        let words = HATSplitter::_unicode_word_split(s);
+    /// The Lexer takes a string and splits it into logical tokens.
+    fn lex(s: &str) -> Vec<Token> {
+        static WHITESPACE_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s+$").unwrap());
+        static PUNCTUATION_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\p{P}$").unwrap());
+
+        let words = Self::unicode_word_split(s);
 
         let words = words
             .iter()
-            .flat_map(|s| HATSplitter::_split_camel_case(s))
+            .flat_map(|s| Self::split_camel_case(s))
+            .flat_map(|s| Self::split_snake_case(s))
             .collect::<Vec<&str>>();
 
-        let words = HATSplitter::_concatenate_spaces(words.clone());
-
-        static WHITESPACE_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s+$").unwrap());
-        static PUNCTUATION_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\p{P}$").unwrap());
+        let words = Self::combine_spaces(words.clone());
 
         words
             .into_iter()
@@ -96,70 +123,43 @@ impl HATSplitter {
             .collect()
     }
 
-    fn _parser(tokens: Vec<Token>) -> Vec<String> {
+    /// The Parser takes tokens and groups them into a string split.
+    fn parse(tokens: Vec<Token>) -> Vec<String> {
         let groups = tokens
-            .iter()
+            .into_iter()
             .fold(Vec::<Vec<Token>>::new(), |mut groups, token| {
-                match token {
-                    Token::Whitespace(_) => {
-                        // Create a separate group for whitespace
-                        groups.push(vec![token.clone()]);
-                    }
-                    Token::Space(_) => {
-                        // Start new group with space
-                        groups.push(vec![token.clone()]);
-                    }
-                    Token::Word(_) => {
-                        // Append to current group if last token is a space, otherwise start new group
-                        if let Some(last_group) = groups.last_mut() {
-                            if let Some(Token::Space(_)) = last_group.last() {
-                                last_group.push(token.clone());
-                                return groups;
-                            }
-                        }
-                        groups.push(vec![token.clone()]);
-                    }
-                    Token::Punctuation(_) => {
-                        // Append to current group if last token is a word, punctuation or space, otherwise start new group
-                        if let Some(last_group) = groups.last_mut() {
-                            if let Some(last_token) = last_group.last() {
-                                if matches!(
-                                    last_token,
-                                    Token::Space(_) | Token::Word(_) | Token::Punctuation(_)
-                                ) {
-                                    last_group.push(token.clone());
-                                    return groups;
-                                }
-                            }
-                        }
-                        groups.push(vec![token.clone()]);
+                let should_append_to_last_group =
+                    |last_group: &Vec<Token>, token: &Token| match (last_group.last(), token) {
+                        (Some(Token::Space(_)), Token::Word(_)) => true,
+                        (
+                            Some(Token::Space(_) | Token::Word(_) | Token::Punctuation(_)),
+                            Token::Punctuation(_),
+                        ) => true,
+                        _ => false,
+                    };
+
+                if let Some(last_group) = groups.last_mut() {
+                    if should_append_to_last_group(last_group, &token) {
+                        last_group.push(token);
+                        return groups;
                     }
                 }
+
+                groups.push(vec![token]);
                 groups
             });
 
         // Concatenate groups
         groups
             .into_iter()
-            .map(|group| {
-                group.into_iter().fold(String::new(), |mut acc, token| {
-                    match token {
-                        Token::Word(s) => acc.push_str(&s),
-                        Token::Punctuation(s) => acc.push_str(&s),
-                        Token::Whitespace(s) => acc.push_str(&s),
-                        Token::Space(s) => acc.push_str(&s),
-                    }
-                    acc
-                })
-            })
+            .map(|group| group.into_iter().map(Token::as_string).collect())
             .collect()
     }
 }
 
 impl Splitter for HATSplitter {
     fn split(&self, input: &str) -> Vec<String> {
-        let tokens = HATSplitter::_lexer(input);
-        HATSplitter::_parser(tokens)
+        Self::parse(Self::lex(input))
     }
 }
 
@@ -173,5 +173,29 @@ mod tests {
         let input = "Hello, world!";
         let result = splitter.split(input);
         assert_eq!(result, vec!["Hello,", " world!"]);
+    }
+
+    #[test]
+    fn it_handles_empty_input() {
+        let splitter = HATSplitter;
+        let input = "";
+        let result = splitter.split(input);
+        assert!(result.is_empty());
+    }
+
+    #[test]
+    fn it_splits_camel_case() {
+        let splitter = HATSplitter;
+        let input = "howAreYou";
+        let result = splitter.split(input);
+        assert_eq!(result, vec!["how", "Are", "You"]);
+    }
+
+    #[test]
+    fn it_splits_snake_case() {
+        let splitter = HATSplitter;
+        let input = "how_are_you";
+        let result = splitter.split(input);
+        assert_eq!(result, vec!["how_", "are_", "you"]);
     }
 }

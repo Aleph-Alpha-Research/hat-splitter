@@ -50,6 +50,7 @@ def shakespeare_text():
         text = f.read()
     return text
 
+
 def test_benchmark_hat_splitter(benchmark, shakespeare_text):
     splitter = HATSplitter()
 
