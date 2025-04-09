@@ -75,8 +75,8 @@ impl HATSplitter {
         Self::split_at_matches(s, &RE)
     }
 
-    fn split_snake_case(s: &str) -> Vec<&str> {
-        static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"_").unwrap());
+    fn split_punctuation(s: &str) -> Vec<&str> {
+        static RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"\p{P}").unwrap());
         Self::split_at_matches(s, &RE)
     }
 
@@ -136,8 +136,8 @@ impl HATSplitter {
 
         let words = words
             .iter()
+            .flat_map(|s| Self::split_punctuation(s))
             .flat_map(|s| Self::split_camel_case(s))
-            .flat_map(|s| Self::split_snake_case(s))
             .collect::<Vec<&str>>();
 
         let words = Self::combine_spaces(words.clone());
