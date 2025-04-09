@@ -7,6 +7,9 @@ from .scaling_splitter import UnicodePunctuationCamelSymbolSplitter
 from hat_splitter import HATSplitter
 
 
+WORD_BYTES_LIMIT = 64
+
+
 @pytest.mark.parametrize(
     "text",
     [
@@ -27,21 +30,25 @@ from hat_splitter import HATSplitter
     + faker.Faker().texts(),
 )
 def test_it_matches_scaling_splitter(text: str) -> None:
-    scaling_splitter = UnicodePunctuationCamelSymbolSplitter(max_chunk_size=64)
+    scaling_splitter = UnicodePunctuationCamelSymbolSplitter(
+        max_chunk_size=WORD_BYTES_LIMIT
+    )
 
     splitter = HATSplitter()
 
+    expected = scaling_splitter.split(text)
+    actual = splitter.split_with_limit(text, WORD_BYTES_LIMIT)
+
+    # The pytest diff isn't great, so pprint for now
     from pprint import pprint
 
     print(f"Input: {text}")
-
     print("Expected:")
-    pprint(scaling_splitter.split(text))
-
+    pprint(expected)
     print("Actual:")
-    pprint(splitter.split_bytes(text))
+    pprint(actual)
 
-    assert splitter.split_bytes(text) == scaling_splitter.split(text)
+    assert expected == actual
 
 
 @pytest.fixture
@@ -54,10 +61,10 @@ def shakespeare_text():
 def test_benchmark_hat_splitter(benchmark, shakespeare_text):
     splitter = HATSplitter()
 
-    benchmark(splitter.split_bytes, shakespeare_text)
+    benchmark(splitter.split_with_limit, shakespeare_text, WORD_BYTES_LIMIT)
 
 
 def test_benchmark_scaling_splitter(benchmark, shakespeare_text):
-    splitter = UnicodePunctuationCamelSymbolSplitter(max_chunk_size=64)
+    splitter = UnicodePunctuationCamelSymbolSplitter(max_chunk_size=WORD_BYTES_LIMIT)
 
     benchmark(splitter.split, shakespeare_text)

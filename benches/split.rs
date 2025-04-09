@@ -11,7 +11,7 @@ fn main() {
     divan::main();
 }
 
-fn hamlet_text() -> &'static str {
+fn shakespeare_text() -> &'static str {
     include_str!("../data/shakespeare.txt")
 }
 
@@ -19,5 +19,5 @@ fn hamlet_text() -> &'static str {
 fn split(bencher: Bencher) {
     let splitter = HATSplitter::new();
 
-    bencher.bench(|| splitter.split(hamlet_text()));
+    bencher.bench(|| splitter.split_with_limit(shakespeare_text(), 64));
 }

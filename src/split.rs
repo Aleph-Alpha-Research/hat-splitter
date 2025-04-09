@@ -23,8 +23,13 @@ pub trait Splitter {
     // At some point it would be great to do this without allocations...
     //fn split<'a>(&self, input: &'a str) -> Vec<&'a str>;
 
-    /// Splits a string into logical tokens.
+    /// Splits a string into words.
     fn split(&self, input: &str) -> Vec<String>;
+
+    /// Splits a string into words and limits the size of each word to `max_bytes`. As this
+    /// function enforces a byte limit, it may split unicode characters. That is, this function
+    /// does not guarantee that the resulting byte arrays are valid UTF-8.
+    fn split_with_limit(&self, input: &str, max_bytes_per_word: usize) -> Vec<Vec<u8>>;
 }
 
 pub struct HATSplitter;
@@ -89,6 +94,36 @@ impl HATSplitter {
             // Otherwise add as a new element
             acc.push(s.to_string());
             acc
+        })
+    }
+
+    // This function does its best to avoid splitting unicode characters, but in some cases it has
+    // no choice (e.g., if max_bytes < 4 and an emoji comes in).
+    fn split_long_words(strings: Vec<String>, max_bytes: usize) -> Vec<Vec<u8>> {
+        if max_bytes == 0 {
+            panic!("max_bytes must be greater than 0");
+        }
+        strings.into_iter().fold(Vec::new(), |mut result, string| {
+            let bytes = string.as_bytes();
+            if bytes.len() <= max_bytes {
+                result.push(bytes.to_vec());
+                return result;
+            }
+
+            let mut start_byte = 0;
+            while start_byte < bytes.len() {
+                let end_byte = std::cmp::min(start_byte + max_bytes, bytes.len());
+
+                // Backtrack to find a valid UTF-8 boundary
+                let end = (start_byte + 1..=end_byte)
+                    .rev()
+                    .find(|&i| string.is_char_boundary(i))
+                    .unwrap_or(end_byte); // Fall back to end_byte if no boundary found
+
+                result.push(bytes[start_byte..end].to_vec());
+                start_byte = end;
+            }
+            result
         })
     }
 
@@ -161,6 +196,10 @@ impl Splitter for HATSplitter {
     fn split(&self, input: &str) -> Vec<String> {
         Self::parse(Self::lex(input))
     }
+
+    fn split_with_limit(&self, input: &str, max_bytes: usize) -> Vec<Vec<u8>> {
+        Self::split_long_words(Self::parse(Self::lex(input)), max_bytes)
+    }
 }
 
 #[cfg(test)]
@@ -169,33 +208,61 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let splitter = HATSplitter;
-        let input = "Hello, world!";
-        let result = splitter.split(input);
+        let result = HATSplitter::new().split("Hello, world!");
+
         assert_eq!(result, vec!["Hello,", " world!"]);
     }
 
     #[test]
     fn it_handles_empty_input() {
-        let splitter = HATSplitter;
-        let input = "";
-        let result = splitter.split(input);
+        let result = HATSplitter::new().split("");
+
         assert!(result.is_empty());
     }
 
     #[test]
     fn it_splits_camel_case() {
-        let splitter = HATSplitter;
-        let input = "howAreYou";
-        let result = splitter.split(input);
+        let result = HATSplitter::new().split("howAreYou");
+
         assert_eq!(result, vec!["how", "Are", "You"]);
     }
 
     #[test]
     fn it_splits_snake_case() {
-        let splitter = HATSplitter;
-        let input = "how_are_you";
-        let result = splitter.split(input);
+        let result = HATSplitter::new().split("how_are_you");
+
         assert_eq!(result, vec!["how_", "are_", "you"]);
+    }
+
+    #[test]
+    fn it_limits_word_size() {
+        let result = HATSplitter::new().split_with_limit("verylongword", 10);
+
+        assert_eq!(result, vec![b"verylongwo".to_vec(), b"rd".to_vec()]);
+    }
+
+    #[test]
+    fn it_splits_large_unicode_characters() {
+        let result = HATSplitter::new().split_with_limit("🌝", 2);
+
+        assert_eq!(result.len(), 2);
+    }
+
+    #[test]
+    fn it_does_not_split_unicode_where_possible() {
+        // This is one word with a 2-byte 'ü' starting at byte offset 1. We hope that the splitter
+        // preserves this character by splitting into three parts instead of two.
+        let result = HATSplitter::new().split_with_limit("für", 2);
+
+        assert_eq!(
+            result,
+            vec![b"f".to_vec(), "ü".as_bytes().to_vec(), b"r".to_vec()]
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn it_handles_zero_max_bytes() {
+        HATSplitter::new().split_with_limit("abc", 0);
     }
 }

@@ -20,9 +20,8 @@ impl PyHATSplitter {
         Ok(self.splitter.split(input))
     }
 
-    fn split_bytes(&self, input: &str) -> PyResult<Vec<Vec<u8>>> {
-        let result = self.splitter.split(input);
-        Ok(result.iter().map(|s| s.as_bytes().to_vec()).collect())
+    fn split_with_limit(&self, input: &str, max_bytes: usize) -> PyResult<Vec<Vec<u8>>> {
+        Ok(self.splitter.split_with_limit(input, max_bytes))
     }
 }
 
