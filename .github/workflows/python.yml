@@ -63,7 +63,7 @@ jobs:
           python3 -m venv .venv
           source .venv/bin/activate
           pip install hat-splitter --find-links dist --force-reinstall
-          pip install pytest faker regex uniseg
+          pip install pytest pytest-benchmark faker regex uniseg
           pytest --benchmark-skip
       - name: pytest
         if: ${{ !startsWith(matrix.platform.target, 'x86') && matrix.platform.target != 'ppc64' }}
@@ -79,7 +79,7 @@ jobs:
           run: |
             set -e
             pip3 install hat-splitter --find-links dist --force-reinstall
-            pip3 install pytest faker regex uniseg
+            pip3 install pytest pytest-benchmark faker regex uniseg
             pytest --benchmark-skip
 
   windows:
@@ -117,7 +117,7 @@ jobs:
           python3 -m venv .venv
           source .venv/Scripts/activate
           pip install hat-splitter --find-links dist --force-reinstall
-          pip install pytest faker regex uniseg
+          pip install pytest pytest-benchmark faker regex uniseg
           pytest --benchmark-skip
 
   macos:
@@ -152,7 +152,7 @@ jobs:
           python3 -m venv .venv
           source .venv/bin/activate
           pip install hat-splitter --find-links dist --force-reinstall
-          pip install pytest faker regex uniseg
+          pip install pytest pytest-benchmark faker regex uniseg
           pytest --benchmark-skip
 
   sdist:
