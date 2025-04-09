@@ -55,16 +55,20 @@ impl HATSplitter {
 
     fn split_at_matches<'a>(s: &'a str, re: &Regex) -> Vec<&'a str> {
         let mut result = Vec::new();
-        let mut match_start = 0;
+        let mut word_start = 0;
 
         for regex_match in re.find_iter(s) {
-            let match_end = regex_match.start() + 1;
-            result.push(&s[match_start..match_end]);
-            match_start = match_end;
+            let match_start = regex_match.start();
+
+            // We can unwrap here as we assume the regex match points to a valid UTF-8 character
+            let word_end = match_start + s[match_start..].chars().next().unwrap().len_utf8();
+
+            result.push(&s[word_start..word_end]);
+            word_start = word_end;
         }
 
-        if match_start < s.len() {
-            result.push(&s[match_start..s.len()]);
+        if word_start < s.len() {
+            result.push(&s[word_start..s.len()]);
         }
 
         result
@@ -265,5 +269,12 @@ mod tests {
     #[should_panic]
     fn it_handles_zero_max_bytes() {
         HATSplitter::new().split_with_limit("abc", 0);
+    }
+
+    #[test]
+    fn it_handles_strange_stuff() {
+        let text = "𓀀✨𝒜𝓁𝑔𝑜𝓇𝒾𝓉𝒽𝓂 شْء 你好吗 こんにちは 안녕하세요 𞤢𞤭𞤤 𝔽(λx.𝑥²) 🤖🍕⟨𝛴, 𝜋⟩ 🜚 𝔽↦𝑒ⁿω₀📡;𝑧𝑎<𝔱𝓇𝑢∃>🛠️ҀЋހ±(Δ𝓧) 乁( •_• )ㄏ   ⿰木日👾";
+
+        HATSplitter::new().split_with_limit(text, 100);
     }
 }
