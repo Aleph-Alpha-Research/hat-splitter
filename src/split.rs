@@ -140,7 +140,7 @@ impl HATSplitter {
             .flat_map(|s| Self::split_camel_case(s))
             .collect::<Vec<&str>>();
 
-        let words = Self::combine_spaces(words.clone());
+        let words = Self::combine_spaces(words);
 
         words
             .into_iter()
