@@ -2,7 +2,7 @@
 members = ["bindings/*"]
 
 [workspace.package]
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 authors = ["Michael Barlow <michael.barlow@aleph-alpha-ip.ai>"]
 description = "HAT splitter"
