@@ -12,7 +12,7 @@ enum Token {
 }
 
 impl Token {
-    fn to_string(self) -> String {
+    fn inner(self) -> String {
         match self {
             Token::Word(s) | Token::Punctuation(s) | Token::Whitespace(s) | Token::Space(s) => s,
         }
@@ -188,7 +188,7 @@ impl HATSplitter {
         // Concatenate groups
         groups
             .into_iter()
-            .map(|group| group.into_iter().map(Token::to_string).collect())
+            .map(|group| group.into_iter().map(Token::inner).collect())
             .collect()
     }
 }
