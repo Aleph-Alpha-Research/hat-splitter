@@ -12,7 +12,7 @@ enum Token {
 }
 
 impl Token {
-    fn as_string(self) -> String {
+    fn to_string(self) -> String {
         match self {
             Token::Word(s) | Token::Punctuation(s) | Token::Whitespace(s) | Token::Space(s) => s,
         }
@@ -163,15 +163,16 @@ impl HATSplitter {
         let groups = tokens
             .into_iter()
             .fold(Vec::<Vec<Token>>::new(), |mut groups, token| {
-                let should_append_to_last_group =
-                    |last_group: &Vec<Token>, token: &Token| match (last_group.last(), token) {
-                        (Some(Token::Space(_)), Token::Word(_)) => true,
-                        (
-                            Some(Token::Space(_) | Token::Word(_) | Token::Punctuation(_)),
-                            Token::Punctuation(_),
-                        ) => true,
-                        _ => false,
-                    };
+                let should_append_to_last_group = |last_group: &Vec<Token>, token: &Token| {
+                    matches!(
+                        (last_group.last(), token),
+                        (Some(Token::Space(_)), Token::Word(_))
+                            | (
+                                Some(Token::Space(_) | Token::Word(_) | Token::Punctuation(_)),
+                                Token::Punctuation(_),
+                            )
+                    )
+                };
 
                 if let Some(last_group) = groups.last_mut() {
                     if should_append_to_last_group(last_group, &token) {
@@ -187,7 +188,7 @@ impl HATSplitter {
         // Concatenate groups
         groups
             .into_iter()
-            .map(|group| group.into_iter().map(Token::as_string).collect())
+            .map(|group| group.into_iter().map(Token::to_string).collect())
             .collect()
     }
 }
