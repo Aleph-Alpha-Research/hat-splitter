@@ -1,6 +1,6 @@
 use divan::Bencher;
 
-use hat_splitter::{Splitter, HATSplitter};
+use hat_splitter::{HATSplitter, Splitter};
 
 use divan::AllocProfiler;
 
@@ -21,4 +21,3 @@ fn split(bencher: Bencher) {
 
     bencher.bench(|| splitter.split(hamlet_text()));
 }
-
