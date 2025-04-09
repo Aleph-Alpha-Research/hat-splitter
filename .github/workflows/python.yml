@@ -64,7 +64,7 @@ jobs:
           source .venv/bin/activate
           pip install hat-splitter --find-links dist --force-reinstall
           pip install pytest faker regex uniseg
-          pytest
+          pytest --benchmark-skip
       - name: pytest
         if: ${{ !startsWith(matrix.platform.target, 'x86') && matrix.platform.target != 'ppc64' }}
         uses: uraimo/run-on-arch-action@v3
@@ -80,7 +80,7 @@ jobs:
             set -e
             pip3 install hat-splitter --find-links dist --force-reinstall
             pip3 install pytest faker regex uniseg
-            pytest
+            pytest --benchmark-skip
 
   windows:
     runs-on: ${{ matrix.platform.runner }}
@@ -118,7 +118,7 @@ jobs:
           source .venv/Scripts/activate
           pip install hat-splitter --find-links dist --force-reinstall
           pip install pytest faker regex uniseg
-          pytest
+          pytest --benchmark-skip
 
   macos:
     runs-on: ${{ matrix.platform.runner }}
@@ -153,7 +153,7 @@ jobs:
           source .venv/bin/activate
           pip install hat-splitter --find-links dist --force-reinstall
           pip install pytest faker regex uniseg
-          pytest
+          pytest --benchmark-skip
 
   sdist:
     runs-on: ubuntu-latest
