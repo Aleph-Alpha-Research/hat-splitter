@@ -1,6 +1,11 @@
+use std::sync::LazyLock;
+
 use icu_segmenter::WordSegmenter;
 use once_cell::sync::Lazy;
 use regex::Regex;
+
+// Note: we could also try `new_auto` which uses a LSTM (we should figure out which is better)
+static WORD_SEGMENTER: LazyLock<WordSegmenter> = LazyLock::new(WordSegmenter::new_dictionary);
 
 #[derive(Clone)]
 enum Token {
@@ -30,14 +35,7 @@ impl HATSplitter {
     }
 
     fn _unicode_word_split(input: &str) -> Vec<&str> {
-        // TODO make this a member of the struct;
-        // this is not currently trivial as it is not `Sync`
-        // and Py03 requires `Send` and `Sync` due to the python GIL
-        // (see https://pyo3.rs/v0.24.0/class/thread-safety)
-        // (of course I would take care of this in the python bindings. not here)
-        let segmenter = WordSegmenter::new_auto();
-
-        let breakpoints: Vec<usize> = segmenter.segment_str(input).collect();
+        let breakpoints: Vec<usize> = WORD_SEGMENTER.segment_str(input).collect();
 
         breakpoints.windows(2).map(|w| &input[w[0]..w[1]]).collect()
     }
