@@ -10,6 +10,13 @@ from hat_splitter import HATSplitter
 WORD_BYTES_LIMIT = 64
 
 
+@pytest.fixture
+def shakespeare_text():
+    with open("../../data/shakespeare.txt", "r") as f:
+        text = f.read()
+    return text
+
+
 @pytest.mark.parametrize(
     "text",
     [
@@ -49,13 +56,6 @@ def test_it_matches_scaling_splitter(text: str) -> None:
     pprint(actual)
 
     assert expected == actual
-
-
-@pytest.fixture
-def shakespeare_text():
-    with open("../../data/shakespeare.txt", "r") as f:
-        text = f.read()
-    return text
 
 
 def test_benchmark_hat_splitter(benchmark, shakespeare_text):
