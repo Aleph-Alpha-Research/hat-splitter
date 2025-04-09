@@ -37,3 +37,11 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Run cargo test
         run: cargo test
+
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check version
+        uses: obi1kenobi/cargo-semver-checks-action@v2
