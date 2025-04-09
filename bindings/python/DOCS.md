@@ -1,9 +1,7 @@
 # hat-splitter
 
-The `hat-splitter` package implements the HAT splitting rule.
-
-This crate is a work in progress. More information and documentation will
-follow.
+The `hat-splitter` package implements the HAT splitting rule. If you don't know
+what that is, you probably won't find this package useful.
 
 ## Installation
 
