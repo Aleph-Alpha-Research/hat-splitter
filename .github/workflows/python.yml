@@ -28,6 +28,30 @@ defaults:
     working-directory: bindings/python
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      # We set up Python with the official setup-python action rather than uv
+      # as GitHub caches the Python versions alongside the runner
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "bindings/python/.python-version"
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+      - name: Lint
+        run: |
+          echo "Linting..."
+          uv run ruff check .
+          echo "Checking formatting..."
+          uv run ruff format --diff .
+
   linux:
     runs-on: ${{ matrix.platform.runner }}
     strategy:
