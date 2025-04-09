@@ -42,3 +42,21 @@ def test_it_matches_scaling_splitter(text: str) -> None:
     pprint(splitter.split_bytes(text))
 
     assert splitter.split_bytes(text) == scaling_splitter.split(text)
+
+
+@pytest.fixture
+def shakespeare_text():
+    with open("../../data/shakespeare.txt", "r") as f:
+        text = f.read()
+    return text
+
+def test_benchmark_hat_splitter(benchmark, shakespeare_text):
+    splitter = HATSplitter()
+
+    benchmark(splitter.split_bytes, shakespeare_text)
+
+
+def test_benchmark_scaling_splitter(benchmark, shakespeare_text):
+    splitter = UnicodePunctuationCamelSymbolSplitter(max_chunk_size=64)
+
+    benchmark(splitter.split, shakespeare_text)

@@ -22,6 +22,8 @@ readme.workspace = true
 exclude = [
     ".github/**",
     "/bindings/**",
+    "/benches/**",
+    "/data/**",
 ]
 rust-version = "1.81.0"
 

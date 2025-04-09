@@ -12,7 +12,7 @@ fn main() {
 }
 
 fn hamlet_text() -> &'static str {
-    include_str!("data/shakespeare.txt")
+    include_str!("../data/shakespeare.txt")
 }
 
 #[divan::bench]
