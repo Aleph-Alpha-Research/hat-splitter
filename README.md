@@ -21,10 +21,7 @@ the splitter we're currently using.
    existing splitting rule. Tests will fail. ✅
 4. Implement the HAT splitting rule in Rust and make tests green. ✅
 5. Package and publish to crates.io and PyPI. ✅
-6. Create benchmarks and optimise.
-
-Once these basics are in place, we can start thinking about packaging and
-publishing.
+6. Create benchmarks and apply initial optimisations. ✅
 
 ## Development
 
