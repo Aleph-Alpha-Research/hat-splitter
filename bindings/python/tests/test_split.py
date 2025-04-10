@@ -42,7 +42,7 @@ FAKER_TEXT_COUNT = 5
         "here! is some, more punctuation. I h0p3 thi$ isn't too 'much'.{{}}()<>$%^&*",
         read_shakespeare_text(),
         f"```python\n{inspect.getsource(UnicodePunctuationCamelSymbolSplitter)}\n```",
-        # "国作", # This doesn't work as uniseg behaves differently to icu_segmenter :)
+        "足王食皮已「住看長蝶視昔次金肖雞」元男躲秋快都同現正！見一內聽故耍了唱登吉了結。只菜就秋。息前冒家冬英百海百遠澡意比，念道話豆流用人？高老信乙即服你京秋別點口邊木意夏青扒布足，口久姊爪三村什誰蛋對。",
     ]
     + faker.Faker().texts(nb_texts=FAKER_TEXT_COUNT),
     ids=[
@@ -61,6 +61,7 @@ FAKER_TEXT_COUNT = 5
         "punctuation_with_symbols",
         "shakespeare_text",
         "python_snippet",
+        "chinese_text",
     ]
     + [f"faker_text_{i}" for i in range(FAKER_TEXT_COUNT)],
 )

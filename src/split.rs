@@ -1,8 +1,6 @@
-use std::sync::LazyLock;
-
-use icu_segmenter::WordSegmenter;
 use once_cell::sync::Lazy;
 use regex::Regex;
+use unicode_segmentation::UnicodeSegmentation;
 
 enum Token {
     Word(String),
@@ -46,11 +44,7 @@ impl HATSplitter {
     }
 
     fn unicode_word_split(input: &str) -> Vec<&str> {
-        // Note: we could also try `new_auto` which uses a LSTM (we should figure out which is better)
-        static WORD_SEGMENTER: LazyLock<WordSegmenter> =
-            LazyLock::new(WordSegmenter::new_dictionary);
-        let breakpoints: Vec<usize> = WORD_SEGMENTER.segment_str(input).collect();
-        breakpoints.windows(2).map(|w| &input[w[0]..w[1]]).collect()
+        input.split_word_bounds().collect::<Vec<&str>>()
     }
 
     fn split_at_matches<'a>(s: &'a str, re: &Regex) -> Vec<&'a str> {
@@ -211,6 +205,8 @@ impl Splitter for HATSplitter {
 mod tests {
     use super::*;
 
+    static STRANGE_STUFF: &str = "𓀀✨𝒜𝓁𝑔𝑜𝓇𝒾𝓉𝒽𝓂 شْء 你好吗 こんにちは 안녕하세요 𞤢𞤭𞤤 𝔽(λx.𝑥²) 🤖🍕⟨𝛴, 𝜋⟩ 🜚 𝔽↦𝑒ⁿω₀📡;𝑧𝑎<𝔱𝓇𝑢∃>🛠️ҀЋހ±(Δ𝓧) 乁( •_• )ㄏ   ⿰木日👾";
+
     #[test]
     fn it_works() {
         let result = HATSplitter::new().split("Hello, world!");
@@ -273,8 +269,23 @@ mod tests {
 
     #[test]
     fn it_handles_strange_stuff() {
-        let text = "𓀀✨𝒜𝓁𝑔𝑜𝓇𝒾𝓉𝒽𝓂 شْء 你好吗 こんにちは 안녕하세요 𞤢𞤭𞤤 𝔽(λx.𝑥²) 🤖🍕⟨𝛴, 𝜋⟩ 🜚 𝔽↦𝑒ⁿω₀📡;𝑧𝑎<𝔱𝓇𝑢∃>🛠️ҀЋހ±(Δ𝓧) 乁( •_• )ㄏ   ⿰木日👾";
+        HATSplitter::new().split_with_limit(STRANGE_STUFF, 100);
+    }
 
-        HATSplitter::new().split_with_limit(text, 100);
+    #[test]
+    fn it_is_causal() {
+        let max_chunk_size = 1024;
+        let splitter = HATSplitter::new();
+
+        let full_split = splitter.split_with_limit(STRANGE_STUFF, max_chunk_size);
+
+        for (i, _) in STRANGE_STUFF.char_indices() {
+            let prefix = &STRANGE_STUFF[..i];
+            let partial_split = splitter.split_with_limit(prefix, max_chunk_size);
+
+            for (full_word, partial_word) in full_split.iter().zip(partial_split.iter()) {
+                assert_eq!(&full_word[..partial_word.len()], partial_word);
+            }
+        }
     }
 }
