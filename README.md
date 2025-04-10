@@ -8,7 +8,8 @@ Python bindings so that we can use the same splitting rule in both languages.
 
 ## Development
 
-See `bindings/python/README.md` for more information on the Python bindings.
+See [the Python bindings README.md](bindings/python/README.md) for development
+instructions for the Python bindings.
 
 ### Release process
 
