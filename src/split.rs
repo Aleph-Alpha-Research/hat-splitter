@@ -130,15 +130,13 @@ impl HATSplitter {
         static WHITESPACE_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\s+$").unwrap());
         static PUNCTUATION_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"^\p{P}$").unwrap());
 
-        let words = Self::unicode_word_split(s);
-
-        let words = words
-            .iter()
-            .flat_map(|s| Self::split_punctuation(s))
-            .flat_map(|s| Self::split_camel_case(s))
-            .collect::<Vec<&str>>();
-
-        let words = Self::combine_spaces(words);
+        let words = Self::combine_spaces(
+            Self::unicode_word_split(s)
+                .iter()
+                .flat_map(|s| Self::split_punctuation(s))
+                .flat_map(|s| Self::split_camel_case(s))
+                .collect::<Vec<&str>>(),
+        );
 
         words
             .into_iter()

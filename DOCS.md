@@ -1,7 +1,9 @@
 # hat-splitter
 
-The `hat-splitter` crate implements the HAT splitting rule. If you don't know
-what that is, you probably won't find this crate useful.
+The `hat-splitter` crate implements the splitting rule described in the
+[Hierarchical Autoregressive Transformers
+paper](https://arxiv.org/abs/2501.10322v2). You can use this to implement
+training and inference of HAT models.
 
 ## Installation
 
