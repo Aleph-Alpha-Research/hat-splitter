@@ -22,12 +22,12 @@ pub trait Splitter {
     //fn split<'a>(&self, input: &'a str) -> Vec<&'a str>;
 
     /// Splits a string into words.
-    fn split(&self, input: &str) -> Vec<String>;
+    fn split(&self, text: &str) -> Vec<String>;
 
-    /// Splits a string into words and limits the size of each word to `max_bytes`. As this
-    /// function enforces a byte limit, it may split unicode characters. That is, this function
-    /// does not guarantee that the resulting byte arrays are valid UTF-8.
-    fn split_with_limit(&self, input: &str, max_bytes_per_word: usize) -> Vec<Vec<u8>>;
+    /// Splits a string into words and limits the size of each word to `max_bytes_per_word`. As
+    /// this function enforces a byte limit, it may split unicode characters. That is, this
+    /// function does not guarantee that the resulting byte arrays are valid UTF-8.
+    fn split_with_limit(&self, text: &str, max_bytes_per_word: usize) -> Vec<Vec<u8>>;
 }
 
 pub struct HATSplitter;

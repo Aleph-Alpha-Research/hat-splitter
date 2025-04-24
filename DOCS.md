@@ -17,9 +17,9 @@ cargo add hat-splitter
 use hat_splitter::{HATSplitter, Splitter};
 
 let my_hat_splitter = HATSplitter::new();
-let split_text: Vec<String> = my_hat_splitter.split("Hello, world!");
-assert_eq!(split_text, vec!["Hello,", " world!"]);
+let words: Vec<String> = my_hat_splitter.split("Hello, world!");
+assert_eq!(words, vec!["Hello,", " world!"]);
 
-let split_text: Vec<Vec<u8>> = my_hat_splitter.split_with_limit("Hello, world!", 4);
-assert_eq!(split_text, vec![b"Hell".to_vec(), b"o,".to_vec(), b" wor".to_vec(), b"ld!".to_vec()]);
+let words: Vec<Vec<u8>> = my_hat_splitter.split_with_limit("Hello, world!", 4);
+assert_eq!(words, vec![b"Hell".to_vec(), b"o,".to_vec(), b" wor".to_vec(), b"ld!".to_vec()]);
 ```

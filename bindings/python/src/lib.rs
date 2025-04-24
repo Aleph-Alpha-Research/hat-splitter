@@ -16,12 +16,12 @@ impl PyHATSplitter {
         })
     }
 
-    fn split(&self, input: &str) -> PyResult<Vec<String>> {
-        Ok(self.splitter.split(input))
+    fn split(&self, text: &str) -> PyResult<Vec<String>> {
+        Ok(self.splitter.split(text))
     }
 
-    fn split_with_limit(&self, input: &str, max_bytes: usize) -> PyResult<Vec<Vec<u8>>> {
-        Ok(self.splitter.split_with_limit(input, max_bytes))
+    fn split_with_limit(&self, text: &str, max_bytes_per_word: usize) -> PyResult<Vec<Vec<u8>>> {
+        Ok(self.splitter.split_with_limit(text, max_bytes_per_word))
     }
 }
 
