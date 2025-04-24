@@ -1,6 +1,10 @@
 # hat-splitter
 
-This is the home of the HAT splitting rule. We expose it as a Rust crate with
+This is the home of the [Hierarchical Autoregressive
+Transformer](https://arxiv.org/abs/2501.10322v2) (HAT) splitting rule. You can
+use this to implement training and inference of HAT models.
+
+We expose it as a Rust crate with
 Python bindings so that (1) we can use the same splitting rule in both
 languages; and (2) we improve performance for inference.
 
