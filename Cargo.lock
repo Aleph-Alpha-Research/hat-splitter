@@ -104,7 +104,7 @@ dependencies = [
 
 [[package]]
 name = "hat-splitter"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "divan",
  "once_cell",
@@ -174,7 +174,7 @@ dependencies = [
 
 [[package]]
 name = "py-hat-splitter"
-version = "0.1.9"
+version = "0.1.10"
 dependencies = [
  "hat-splitter",
  "pyo3",
