@@ -15,5 +15,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 hat-splitter = { path = "../.." }
-pyo3 = "0.24.0"
+pyo3 = "0.24.2"
 
