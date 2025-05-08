@@ -6,7 +6,7 @@ version = "0.1.10"
 edition = "2021"
 authors = ["Michael Barlow <michael.barlow@aleph-alpha-ip.ai>"]
 description = "HAT splitter"
-repository = "https://github.com/Aleph-Alpha/hat-splitter"
+repository = "https://github.com/Aleph-Alpha-Research/hat-splitter"
 license-file = "LICENSE"
 readme = "DOCS.md"
 

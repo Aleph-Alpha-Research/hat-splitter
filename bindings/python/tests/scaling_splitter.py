@@ -3,7 +3,7 @@ from uniseg import wordbreak
 import regex as re
 
 # This implementation was copied from Scaling verbatim
-# https://github.com/Aleph-Alpha/scaling-internal/blob/44a5c7286d01e288734f809bf43e821a8b6aa690/src/scaling/transformer/tokenizer/hierarchical.py#L252
+# https://github.com/Aleph-Alpha-Research/scaling-internal/blob/44a5c7286d01e288734f809bf43e821a8b6aa690/src/scaling/transformer/tokenizer/hierarchical.py#L252
 
 
 class BaseTextSplitter(ABC):
