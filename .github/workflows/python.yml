@@ -37,7 +37,7 @@ jobs:
       # We set up Python with the official setup-python action rather than uv
       # as GitHub caches the Python versions alongside the runner
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version-file: "bindings/python/pyproject.toml"
       - name: Install dependencies
@@ -60,7 +60,7 @@ jobs:
             target: x86
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.x
       - name: Build wheels
@@ -114,7 +114,7 @@ jobs:
             target: x86
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
@@ -152,7 +152,7 @@ jobs:
             target: aarch64
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: 3.x
       - name: Build wheels
